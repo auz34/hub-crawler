@@ -40,32 +40,33 @@ namespace hub_crawler_console
         public static void Main(string[] args)
         {
             log.Debug("Start application");
+            var options = new Options();
+            CommandLine.Parser.Default.ParseArgumentsStrict(
+                args,
+                options,
+                () =>
+                    {
+                        Console.WriteLine("Arguments are not valid. Use -help flag to start app correctly.");
+                        Environment.Exit(1);
+                    });
 
-            if (args.Length != 2)
+            if (!options.AreDatesProvided)
             {
-                Console.WriteLine("Two and only two command line parameters must be provided");
+                Console.WriteLine("Both start and end dates must be provided in in format yyyy-mm-{01..31}-{0..23} format.");
                 Environment.Exit(1);
             }
 
-            DateTime date1 = DateTime.MinValue, date2 = DateTime.MaxValue;
-
-            try
+            if (options.StartDateTime > options.EndDateTime)
             {
-                date1 = ParseDateArgument(args[0]);
-                date2 = ParseDateArgument(args[1]);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Start date must be equal or less than end date.");
                 Environment.Exit(1);
             }
 
-            DateTime start = (date1 > date2) ? date2 : date1,
-                     end = (date1 > date2) ? date1 : date2,
-                     curDate = end;
+
+            DateTime curDate = options.EndDateTime;
 
             var hours = new List<DateTime> { curDate };
-            while (curDate > start)
+            while (curDate > options.StartDateTime)
             {
                 curDate = curDate.AddHours(-1);
                 hours.Add(curDate);
@@ -84,7 +85,7 @@ namespace hub_crawler_console
                         .ContinueWith(
                             _ =>
                             {
-                                Console.WriteLine("Json for {0} succesfully downloaded", time);
+                                LogMessage(string.Format("Json for {0} succesfully downloaded", time), options);
                                 IDBRepository dbRepository = new DBRepository();
                                 if (!dbRepository.EventsExistForHour(time))
                                 {
@@ -92,19 +93,20 @@ namespace hub_crawler_console
                                     try
                                     {
                                         fileToRepositoryProcessor.ProcessFile(pathProvider.GetFilePath(time));
-                                        Console.WriteLine("{0} succesfully processed", time);
+                                        LogMessage(string.Format("{0} succesfully processed", time), options);
+                                        
                                     }
                                     catch (Exception exception)
                                     {
                                         // If something happens we can just clear events without handling transations
                                         dbRepository.ClearEventsForHour(time);
-                                        Console.WriteLine(
-                                            "ERROR: Events hour {0} was not processed and therefore removed because of exception. See log for details",
-                                            time);
-
-                                        log.Error(
-                                            string.Format("Events hour {0} was not processed and therefore removed because of exception. See log for details", time),
+                                        LogError(
+                                            string.Format(
+                                                "ERROR: Events hour {0} was not processed and therefore removed because of exception. See log for details",
+                                                time),
+                                            options,
                                             exception);
+                                        
                                     }
                                 }
                             })
@@ -116,18 +118,56 @@ namespace hub_crawler_console
         }
 
         /// <summary>
-        /// The parse date argument.
+        /// The log message.
         /// </summary>
-        /// <param name="argument">
-        /// The argument.
+        /// <param name="message">
+        /// The message.
         /// </param>
-        /// <returns>
-        /// The <see cref="DateTime"/>.
-        /// </returns>
-        private static DateTime ParseDateArgument(string argument)
+        /// <param name="options">
+        /// The options.
+        /// </param>
+        public static void LogMessage(string message, Options options)
         {
-            var dateParts = argument.Split('-').Select(int.Parse).ToArray();
-            return new DateTime(dateParts[0], dateParts[1], dateParts[2], dateParts[3], 0, 0);
+            if (options.VerboseType == VerboseType.ErrorOnly || 
+                options.VerboseType == VerboseType.Silent)
+            {
+                return;
+            }
+
+            if (options.VerboseType == VerboseType.LastOnly)
+            {
+                Console.Clear();
+            }
+
+            Console.WriteLine(message);
+        }
+
+        /// <summary>
+        /// The log error.
+        /// </summary>
+        /// <param name="message">
+        /// The message.
+        /// </param>
+        /// <param name="options">
+        /// The options.
+        /// </param>
+        /// <param name="ex">
+        /// The ex.
+        /// </param>
+        public static void LogError(string message, Options options, Exception ex)
+        {
+            if (options.VerboseType == VerboseType.Silent)
+            {
+                return;
+            }
+
+            if (options.VerboseType == VerboseType.LastOnly)
+            {
+                Console.Clear();
+            }
+
+            Console.WriteLine(message);
+            log.Error(message, ex);
         }
     }
 }
