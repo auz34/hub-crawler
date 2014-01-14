@@ -110,7 +110,7 @@ namespace GitArchiveProcessor.Logic
                         }
                         else if ((i == 0) ||
                             (content[i - 1] != '\\') ||
-                            (content[i - 1] == '\\' && content[i - 2] == '\\'))
+                            (content[i - 1] == '\\' && content[i - 2] == '\\' && content[i - 3] != '\\'))
                         {
                             ignoreMode = false;
                         }

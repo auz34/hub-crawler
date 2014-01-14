@@ -74,6 +74,16 @@ namespace GitArchiveProcessor.Tests
         }
 
         /// <summary>
+        /// The sum of items equal to content. Fifth test.
+        /// </summary>
+        [TestMethod]
+        public void SumOfItemsEqualToContent6()
+        {
+            const string FileName = @"C:\gitjson\2013-08-21-14.json";
+            this.GenericSumOfItemsEqualToContentTest(FileName);
+        }
+
+        /// <summary>
         /// The all records are valid. First test.
         /// </summary>
         [TestMethod]
