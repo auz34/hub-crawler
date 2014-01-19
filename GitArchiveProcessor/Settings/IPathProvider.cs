@@ -17,6 +17,14 @@ namespace GitArchiveProcessor.Settings
     public interface IPathProvider
     {
         /// <summary>
+        /// The get data folder.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        string GetDataFolder();
+
+        /// <summary>
         /// The get hourly archive url.
         /// </summary>
         /// <param name="hourlyArchiveDate">

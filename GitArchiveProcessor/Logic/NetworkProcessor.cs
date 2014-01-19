@@ -9,14 +9,12 @@
 namespace GitArchiveProcessor.Logic
 {
     using System;
-    using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
 
     using GitArchiveProcessor.Settings;
 
-    using Ionic.Zip;
     using Ionic.Zlib;
 
     /// <summary>

@@ -10,6 +10,7 @@
 namespace GitArchiveProcessor.Settings
 {
     using System;
+    using System.Configuration;
     using System.Globalization;
 
     /// <summary>
@@ -32,7 +33,27 @@ namespace GitArchiveProcessor.Settings
         /// </summary>
         private const string CacheFolderPathPattern = @"{0}\GitHubArchive\";
 
+        /// <summary>
+        /// The gz cache folder path pattern.
+        /// </summary>
         private const string GzCacheFolderPathPattern = @"{0}\GitHubArchive\gz\";
+
+        /// <summary>
+        /// The get data folder.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public string GetDataFolder()
+        {
+            string dataFolder = ConfigurationManager.AppSettings["DataFolder"];
+            if (!string.IsNullOrEmpty(dataFolder))
+            {
+                return dataFolder;
+            }
+
+            return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        }
 
         /// <summary>
         /// The get hourly archive url.
@@ -59,7 +80,7 @@ namespace GitArchiveProcessor.Settings
         /// </returns>
         public string GetGzFilePath(DateTime hourlyArchiveDate)
         {
-            return string.Format(GzPathPattern, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), this.GetFileName(hourlyArchiveDate));
+            return string.Format(GzPathPattern, this.GetDataFolder(), this.GetFileName(hourlyArchiveDate));
         }
 
         /// <summary>
@@ -70,7 +91,7 @@ namespace GitArchiveProcessor.Settings
         /// </returns>
         public string GetGzFolderPath()
         {
-            return string.Format(GzCacheFolderPathPattern, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+            return string.Format(GzCacheFolderPathPattern, this.GetDataFolder());
         }
 
         /// <summary>
@@ -114,7 +135,7 @@ namespace GitArchiveProcessor.Settings
         /// </returns>
         public string GetFolderPath()
         {
-            return string.Format(CacheFolderPathPattern, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+            return string.Format(CacheFolderPathPattern, this.GetDataFolder());
         }
     }
 }

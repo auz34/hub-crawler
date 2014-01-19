@@ -11,10 +11,8 @@ namespace hub_crawler_console
 {
     using System;
     using System.Linq;
-    using System.Runtime.InteropServices.WindowsRuntime;
 
     using CommandLine;
-    using CommandLine.Text;
 
     /// <summary>
     /// The verbose type.
@@ -62,7 +60,7 @@ namespace hub_crawler_console
         /// <summary>
         /// Gets or sets the verbose type.
         /// </summary>
-        [Option('v', "verbose", Required = false, DefaultValue = "LastOnly", HelpText = "Indicates how and which messaged will be printed into console.")]
+        [Option('v', "verbose", Required = false, DefaultValue = VerboseType.LastOnly, HelpText = "Indicates how and which messaged will be printed into console.")]
         public VerboseType VerboseType { get; set; }
 
         /// <summary>
